@@ -30,36 +30,62 @@ from gurobipy import GRB
 #4(S4)=30
 #5(S5)=49
 
-budget = 140
-nodes,reward = gp.multidict({
-    0: 13, 1: 7, 2: 15, 3: 11,
-    4: 12, 5: 14, 6: 9, 7: 17, 
-    8:13
+budget = 120
+nodes,reward, covered_by = gp.multidict({
+    0: [13, {0}], 
+    1: [7, {0,1,2}], 
+    2: [15, {0,1,2}], 
+    3: [11, {2,3}],
+    4: [12, {2,3,4}], 
+    5: [14, {2,4}], 
+    6: [9, {3,4}], 
+    7: [17, {1,2,4}], 
+    8: [13, {1,4}]
 })
 
 subsets, coverage, cost = gp.multidict({
-    0 : [{1,2,3}, 32],
-    1 : [{2,3,8,9}, 38],
-    2 : [{2,3,4,5,6,8}, 63],
-    3 : [{4,5,7}, 30],
-    4 : [{5,6,7,8,9}, 49]
+    0 : [{0,1,2}, 32],
+    1 : [{1,2,7,8}, 38],
+    2 : [{1,2,3,4,5,7}, 63],
+    3 : [{3,4,6}, 30],
+    4 : [{4,5,6,7,8}, 49]
 })
+
+z = [1,0,1,0,0]
 
 #Model Building
 m = gp.Model("Max_Reward_Gain_1")
 
 #Variable generation
-pick = m.addVars(len(subsets), vtype=GRB.BINARY, name="pick")
-is_covered = m.addVars(len(nodes), vtype=GRB.BINARY, name="is_covered")
+x = {}
+for k in subsets:
+    x[k] = m.addVar(vtype=GRB.BINARY, name="x_%d" %k)
 
-#Constraint
-m.addConstrs((gp.quicksum(pick[i] for i in subsets if j in coverage[i]) >= is_covered[j]
-                        for j in nodes), name="Pick_cover")
+y = {}
+for i in nodes:
+    y[i] = m.addVar(vtype=GRB.BINARY, obj= -reward[i], name = "y_%d" %i)
 
-m.addConstr(pick.prod(cost) <= budget, name = "budget")
+m.update()
 
-m.setObjective(is_covered.prod(reward), GRB.MAXIMIZE)
+#Constraints
+
+for i in nodes:
+    m.addConstr((gp.quicksum(x[k] for k in covered_by[i]) >= y[i]), name = "coverage_%d"%i)
+
+for k in subsets:
+    m.addConstr(x[k] <= 1 - z[k], name = "interdicted_%d"%k)
+
+m.addConstr(gp.quicksum(x[k]*cost[k] for k in subsets) <= budget, name = "budget")
+
+m.update()
+
+m.setParam
 
 m.optimize()
 
+for k in subsets:
+    print("x_{}: {}".format(k,x[k].x))
+
+for i in nodes:
+    print("y_{}: {}".format(i,y[i].x))
 #add a comment
