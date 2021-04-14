@@ -2,11 +2,8 @@ import GRAPH
 from gurobipy import *
 
 class MRG_Interdiction:
-    # graph object (includes MRG_model)
+    # graph object (includes MRG_model, RGI_Model)
     G = Graph()
-
-    # Interdiction Model (BLK for block)
-    BLK_Model = Model("Interdiction")
 
     # Kappa Model
     KAP_Model = Model("Kappa")
@@ -16,8 +13,9 @@ class MRG_Interdiction:
             Basically just set up the graph fully, and the initial models for
             BLK_Model, KAP_Model
         '''
-        G.read(graph_inputfile)
-        # G.setupMRGmodel() // doesn't exist yet in my version so will need fixing
+        self.G.read(graph_inputfile)
+        self.G.setupMRGmodel()
+        self.G.setupRGImodel()
 
 
     def solve(self):
