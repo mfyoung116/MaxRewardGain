@@ -144,11 +144,10 @@ class Graph:
             else:
                 self.x[k].lb =  1
 
+# tests
+# G = Graph('dat/instance0.graph')
+# G.printG()
+# G.setupMRG()
+# G.setupRGI()
 
-G = Graph('dat/instance0.graph')
-G.printG()
-G.setupMRG()
-G.setupRGI()
-
-G.updateMRG()
 

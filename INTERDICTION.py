@@ -5,8 +5,10 @@ class MRG_Interdiction:
     # graph object (includes MRG_model, RGI_Model)
     G = Graph()
 
-    # Kappa Model
+    # Kappa Model and vars
     KAP_Model = Model("Kappa")
+    v = {}
+    w = {}
 
     def __init__(self, graph_inputfile):
         '''
