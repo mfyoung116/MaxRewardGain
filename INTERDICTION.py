@@ -1,4 +1,4 @@
-import graph
+import GRAPH
 from gurobipy import *
 
 class MRG_Interdiction:
@@ -21,6 +21,18 @@ class MRG_Interdiction:
         '''
             Subroutine to separate a cover using MRG, given the current interdiction policy.
         '''
+        self.G.MRG_Model.update()
+        self.G.MRG_Model.optimize()
+        
+        self.cov =[]
+        for i in self.G.MRG_Model.getVars():
+            self.cov.append((i.varName, i.x))
+        
+        self.cval = []
+        self.cval = self.G.MRG_Model.objVal
+        
+        #return as a list the subsets (cover)
+        #indecies of the subsets that are in the solution
         pass
 
     def get_kappa(self):
